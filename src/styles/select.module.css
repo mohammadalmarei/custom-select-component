@@ -1,0 +1,160 @@
+svg {
+  vertical-align: top;
+}
+.container {
+  --border: rgb(179, 179, 179);
+  --primary: hsl(212, 100%, 50%);
+
+  position: relative;
+  display: flex;
+  padding: 5px 10px;
+  border-radius: 4px;
+  min-height: 20px;
+  box-shadow: var(--border) 0px 0px 0px 1px;
+}
+
+.container:focus {
+  box-shadow: var(--primary) 0px 0px 0px 2px;
+}
+
+.container:focus-within {
+  box-shadow: var(--primary) 0px 0px 0px 2px;
+}
+
+.container:focus > .options {
+  display: block;
+}
+.container:focus-within > .options {
+  display: block;
+}
+
+.option-badge {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  font-family: inherit;
+  background-color: rgb(230, 230, 230);
+  border: none;
+  outline: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.option-badge > p {
+  margin: 0 5px;
+  padding: 0;
+}
+
+.option-badge > .remove-btn {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.option-badge > .remove-btn :hover {
+  background-color: hsl(0, 100%, 50%);
+}
+.option-badge > .remove-btn > svg {
+  width: 10px;
+  padding: 5px;
+}
+.option-badge > .remove-btn:hover > svg {
+  fill: #fff;
+}
+
+.value {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.create-input {
+  flex-grow: 1;
+  min-width: 50px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+.controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.controls::after {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+  display: block;
+  content: "";
+  height: 90%;
+  width: 1px;
+  background-color: var(--border);
+}
+
+.controls > .clear-btn {
+  display: flex;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.controls > .clear-btn > svg {
+  width: 10px;
+  fill: var(--border);
+}
+
+.controls > .clear-btn:hover > svg {
+  filter: brightness(0.75);
+}
+
+.controls > .caret > svg {
+  width: 10px;
+  fill: var(--border);
+}
+
+.controls > .caret {
+  display: flex;
+}
+
+.options {
+  position: absolute;
+  margin: 0;
+  padding: 5px 0;
+  list-style: none;
+  display: none;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: var(--border) 0px 0px 0px 1px;
+  border-radius: 4px;
+  width: 100%;
+  left: 0;
+  top: calc(100% + 5px);
+  background-color: white;
+  z-index: 100;
+}
+
+.option {
+  padding: 5px;
+}
+
+.option.selected {
+  display: none;
+}
+
+.option.highlighted {
+  background-color: hsl(211.1, 100%, 89%);
+}
+
+.create-btn {
+  padding: 5px;
+}
+
+.create-btn.highlighted {
+  background-color: hsl(211.1, 100%, 89%);
+}
