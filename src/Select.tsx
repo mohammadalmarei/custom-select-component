@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ChangeEvent } from "react";
+import { useState, ChangeEvent, useRef } from "react";
 import styles from "./styles/select.module.css";
 
 type SelectOption = {
@@ -63,67 +63,64 @@ function Select({
   // State to manage the text input for creatable options
   const [creatableInputText, setCreatableInputText] = useState<string>("");
 
-  // State to keep track of the currently highlighted option index
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  // State to keep track of the currently highlighted option index the default is -1 which means it will point to the create: option
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-  //select ref to handle keyboard actions
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // refs to handle keyboard actions
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  //Keyboard
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.target != containerRef.current) return;
-      switch (e.code) {
+  function handleContainerKeyDown(event: React.KeyboardEvent) {
+    event.stopPropagation();
+    switch (event.code) {
+      case "Enter":
+      case "Space":
+        event.preventDefault(); // Prevent default behavior of the Down Arrow key
+        selectOption(options[highlightedIndex]);
+        break;
+      case "ArrowUp":
+      case "ArrowDown": {
+        const newValue =
+          highlightedIndex + (event.code === "ArrowDown" ? 1 : -1);
+        if (newValue >= -1 && newValue < options.length) {
+          setHighlightedIndex(newValue);
+        }
+        break;
+      }
+      default:
+        if (event.code !== "Tab") {
+          inputRef.current?.focus();
+          setHighlightedIndex(-1);
+        }
+        break;
+    }
+  }
+
+  function handleInputKeyDown(event: React.KeyboardEvent) {
+    event.stopPropagation();
+    if (creatable) {
+      switch (event.code) {
         case "Enter":
-        case "Space":
-          selectOption(options[highlightedIndex]);
+          event.preventDefault(); // Prevent default behavior of the Space key
+          handleCreateOption({
+            label: creatableInputText,
+            value: "",
+          });
           break;
-        case "ArrowUp":
-        case "ArrowDown": {
-          const newValue = highlightedIndex + (e.code === "ArrowDown" ? 1 : -1);
-          if (newValue >= 0 && newValue < options.length) {
-            setHighlightedIndex(newValue);
-          }
+        case "ArrowDown":
+          containerRef.current?.focus();
+          setHighlightedIndex(0);
           break;
-        }
       }
-    };
-
-    containerRef.current?.addEventListener("keydown", handler);
-
-    return () => {
-      containerRef.current?.removeEventListener("keydown", handler);
-    };
-  }, [highlightedIndex, options]);
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.target != inputRef.current) return;
-      if (creatable) {
-        switch (e.code) {
-          case "Enter":
-          case "Space":
-            handleCreateOption({
-              label: creatableInputText,
-              value: "",
-            });
-            break;
-        }
-      }
-    };
-
-    containerRef.current?.addEventListener("keydown", handler);
-
-    return () => {
-      containerRef.current?.removeEventListener("keydown", handler);
-    };
-  }, [creatableInputText]);
+    }
+  }
 
   return (
     <div
       className={styles.container}
-      tabIndex={creatable ? 2 : 1}
       ref={containerRef}
+      onKeyDown={handleContainerKeyDown}
+      tabIndex={1}
     >
       <span className={styles.value}>
         {isMulti
@@ -140,8 +137,8 @@ function Select({
               >
                 <p>{v.label}</p>
                 <span className={styles["remove-btn"]}>
-                  <svg viewBox="0 0 32 32">
-                    <path d="M18.8,16l5.5-5.5c0.8-0.8,0.8-2,0-2.8l0,0C24,7.3,23.5,7,23,7c-0.5,0-1,0.2-1.4,0.6L16,13.2l-5.5-5.5  c-0.8-0.8-2.1-0.8-2.8,0C7.3,8,7,8.5,7,9.1s0.2,1,0.6,1.4l5.5,5.5l-5.5,5.5C7.3,21.9,7,22.4,7,23c0,0.5,0.2,1,0.6,1.4  C8,24.8,8.5,25,9,25c0.5,0,1-0.2,1.4-0.6l5.5-5.5l5.5,5.5c0.8,0.8,2.1,0.8,2.8,0c0.8-0.8,0.8-2.1,0-2.8L18.8,16z" />
+                  <svg viewBox="0 0 200 200">
+                    <path d="M5.53445 5.53431C-1.84482 12.9136 -1.84482 24.8775 5.53445 32.2567L73.2776 99.9995L5.53445 167.744C-1.84482 175.122 -1.84482 187.087 5.53445 194.466C12.9135 201.845 24.8776 201.845 32.2567 194.466L99.9996 126.722L167.744 194.466C175.123 201.845 187.087 201.845 194.466 194.466C201.845 187.087 201.845 175.122 194.466 167.744L126.722 99.9995L194.466 32.2569C201.845 24.8779 201.845 12.9138 194.466 5.53469C187.085 -1.84458 175.123 -1.84458 167.744 5.53469L99.9996 73.2774L32.2567 5.53431C24.8776 -1.84477 12.9135 -1.84477 5.53445 5.53431Z" />
                   </svg>
                 </span>
               </button>
@@ -154,10 +151,10 @@ function Select({
             value={creatableInputText}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setCreatableInputText(e.target.value);
-              setHighlightedIndex(-1);
             }}
-            ref={inputRef}
+            onKeyDown={handleInputKeyDown}
             tabIndex={1}
+            ref={inputRef}
           />
         )}
       </span>
